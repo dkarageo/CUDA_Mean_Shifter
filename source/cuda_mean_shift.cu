@@ -1,6 +1,14 @@
 /**
  * cuda_mean_shift.cu
+ *
+ * Created by Dimitrios Karageorgiou,
+ *  for course "Parallel And Distributed Systems".
+ *  Electrical and Computers Engineering Department, AuTh, GR - 2017-2018
+ *
+ * This file provides an implementation for routines defined in
+ * cuda_mean_shift.h.
  */
+
 
 #include <stdio.h>
 #include <assert.h>
@@ -27,11 +35,6 @@ __global__ void shift_point_kernel(
                             double *d_original,
                             double h,
                             double *d_n_work);
-
-matrix_t *array_to_matrix(double *a, int rows, int cols, int lda);
-double *matrix_to_array(matrix_t *matrix, int ldm);
-double get_elapsed_time(struct timeval start, struct timeval stop);
-int nearest_two_pow(int n, int lower);
 
 
 extern "C"

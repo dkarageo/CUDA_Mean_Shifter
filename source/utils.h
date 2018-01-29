@@ -74,7 +74,12 @@ double get_elapsed_time(struct timeval start, struct timeval stop);
  * Finds the nearest two power of the given number.
  *
  * Parameters:
- *  -n : Number to find its
+ *  -n : Number to find its nearest two power.
+ *  -lower : A boolean that when set to 1, the nearest power is lower than
+ *          n and when set to 0, nearest power is greater than n.
+ *
+ * Returns:
+ *  The nearest two power of the provided number.
  */
 int nearest_two_pow(int n, int lower);
 

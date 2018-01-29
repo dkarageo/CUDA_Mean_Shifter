@@ -6,6 +6,8 @@
  *  Electrical and Computers Engineering Department, AuTh, GR - 2017-2018
  *
  * matrix.c provides an implementation for routines defined in matrix.h.
+ *
+ * Version: 0.2
  */
 
 #include <stdlib.h>

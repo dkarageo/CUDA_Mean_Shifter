@@ -1,3 +1,13 @@
+/**
+ * algebra.c
+ *
+ * Created by Dimitrios Karageorgiou,
+ *  for course "Parallel And Distributed Systems".
+ *  Electrical and Computers Engineering Department, AuTh, GR - 2017-2018
+ *
+ * This file provides an implementation for routines defined in algebra.h.
+ */
+
 #include <math.h>
 
 #include "svd/svd_double.h"

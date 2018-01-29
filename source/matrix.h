@@ -8,6 +8,8 @@
  * matrix.h defines routines that may be used for creating and managing
  * matrices of doubles.
  *
+ * Version: 0.2
+ *
  * Types defined in knn.h:
  *  -matrix_t (opaque)
  *
@@ -26,6 +28,19 @@
  * 									 int32_t req_chunk)
  *	-char *matrix_serialize(matrix_t *matrix, size_t *bytec)
  *	-matrix_t *matrix_deserialize(char *bytes, size_t bytec)
+ *  -double **matrix_to_2d_array(matrix_t *matrix)
+ *  -matrix_t *matrix_create_copy(matrix_t *matrix)
+ *  -matrix_t *matrix_fill(matrix_t *matrix, double value)
+ *  -matrix_t *matrix_set_row(matrix_t *matrix, int32_t row,
+ *                         matrix_t *new_matrix, int32_t new_row)
+ *  -matrix_t *matrix_row_num_mul(matrix_t *matrix, int32_t row, double num,
+ *                             matrix_t *out, int32_t out_row)
+ *  -matrix_t *matrix_row_num_div(matrix_t *matrix, int32_t row, double num,
+ *                             matrix_t *out, int32_t out_row)
+ *  -matrix_t *matrix_row_add(matrix_t *m1, int32_t r1, matrix_t *m2, int32_t r2,
+ *                         matrix_t *out, int32_t out_row)
+ *  -matrix_t *matrix_row_sub(matrix_t *m1, int32_t r1, matrix_t *m2, int32_t r2,
+ *                         matrix_t *out, int32_t out_row)
  */
 
 #ifndef __matrix_h__

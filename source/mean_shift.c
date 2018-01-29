@@ -1,3 +1,13 @@
+/**
+ * mean_shift.c
+ *
+ * Created by Dimitrios Karageorgiou,
+ *  for course "Parallel And Distributed Systems".
+ *  Electrical and Computers Engineering Department, AuTh, GR - 2017-2018
+ *
+ * This file provides an implementation for routines defined in mean_shift.h
+ */
+
 #include <math.h>
 #include <stdio.h>
 #include <sys/time.h>

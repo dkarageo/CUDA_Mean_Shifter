@@ -1,3 +1,13 @@
+/**
+ * cuda_algebra.cu
+ *
+ * Created by Dimitrios Karageorgiou,
+ *  for course "Parallel And Distributed Systems".
+ *  Electrical and Computers Engineering Department, AuTh, GR - 2017-2018
+ *
+ * This files implements routines defined in cuda_alebra.h
+ */
+
 #include <stdlib.h>
 #include <assert.h>
 #include <math.h>
