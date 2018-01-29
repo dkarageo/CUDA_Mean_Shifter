@@ -4,3 +4,11 @@
 *.ptx
 *.cubin
 *.fatbin
+
+bin/
+
+obj/
+
+log\.txt
+
+tests/
