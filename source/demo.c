@@ -153,10 +153,7 @@ int validate(matrix_t *m1, matrix_t *m2)
         for (int j = 0; j < matrix_get_cols(m1); j++) {
             double c1 = matrix_get_cell(m1, i, j);
             double c2 = matrix_get_cell(m2, i, j);
-            if (fabs(c1 - c2) > 0.01) {
-                printf("%d %d : Expected %f - Actual %f\n", i, j, c1, c2);
-                //return 0;
-            }
+            if (fabs(c1 - c2) > 0.01) return 0;
         }
     }
 

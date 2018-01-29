@@ -291,30 +291,30 @@ __global__ void shift_point_kernel(
                         kernel_tmp[j];
                 }
             }
+        }
 
-            // Make sure all values are ready for reduction.
+        // Make sure all values are ready for reduction.
+        __syncthreads();
+
+        // Denominator partial sums reduction.
+        int half_threads = blockDim.x >> 1;  // Threads that can be utilized.
+
+        while (half_threads > 0) {
+            if (cord < half_threads && i < rows) {
+                int thread2 = cord + half_threads;
+
+                denom_red[blockDim.x*threadIdx.y + threadIdx.x] +=
+                    denom_red[blockDim.x*threadIdx.y + thread2];
+            }
+
+            half_threads >>= 1;
             __syncthreads();
+        }
 
-            // Denominator partial sums reduction.
-            int half_threads = blockDim.x >> 1;  // Threads that can be utilized.
-
-            while (half_threads > 0) {
-                if (cord < half_threads && i < rows) {
-                    int thread2 = cord + half_threads;
-
-                    denom_red[blockDim.x*threadIdx.y + threadIdx.x] +=
-                        denom_red[blockDim.x*threadIdx.y + thread2];
-                }
-
-                half_threads >>= 1;
-                __syncthreads();
-            }
-
-            // Keep track of denominator inside each thread, so to utilize it
-            // for parallel division with nominator's cords.
-            if (i < rows) {
-                denom += denom_red[blockDim.x*threadIdx.y];
-            }
+        // Keep track of denominator inside each thread, so to utilize it
+        // for parallel division with nominator's cords.
+        if (i < rows) {
+            denom += denom_red[blockDim.x*threadIdx.y];
         }
 
     // ======== Calculate Local Nominator Sum and Final Reduction =========
