@@ -18,6 +18,19 @@
 
 /**
  * Calculates the Frobenius Norm of a matrix, stored in device memory.
+ *
+ * Parameters:
+ *  -d_A : An (lda*n) doubles' matrix stored in device memory, in column-major
+ *          order.
+ *  -m : The number of rows of d_A.
+ *  -n : The number of columns of d_A.
+ *  -lda : The leading dimension of d_A. This allows the usage of matrices
+ *          that in their linear representation contain padding between their
+ *          successive columns. If now padding exists, then this argument
+ *          should be set to the value given in m (number of rows).
+ *
+ * Returns:
+ *  The frobenius norm of the given matrix.
  */
 double cuda_norm(double *d_A, int m, int n, int lda);
 

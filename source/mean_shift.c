@@ -13,10 +13,8 @@
 #include <sys/time.h>
 #include "matrix.h"
 #include "algebra.h"
+#include "utils.h"
 #include "mean_shift.h"
-
-
-double get_el_time(struct timeval start, struct timeval stop);
 
 
 matrix_t *mean_shift(matrix_t *points, double h, double e)
@@ -47,7 +45,7 @@ matrix_t *mean_shift(matrix_t *points, double h, double e)
         gettimeofday(&norm_start, NULL);
         error = norm(m);
         gettimeofday(&norm_stop, NULL);
-        norm_time += get_el_time(norm_start, norm_stop);
+        norm_time += get_elapsed_time(norm_start, norm_stop);
 
         printf("Iteration %d - Error: %f\n", iter, error);
         iter++;
@@ -92,11 +90,4 @@ void shift_point(matrix_t *shifted, matrix_t *m, int i, matrix_t *original,
 
     matrix_destroy(sum_nom);
     matrix_destroy(new_shifted_p);
-}
-
-double get_el_time(struct timeval start, struct timeval stop)
-{
-    double elapsed_time = (stop.tv_sec - start.tv_sec) * 1.0;
-    elapsed_time += (stop.tv_usec - start.tv_usec) / 1000000.0;
-    return elapsed_time;
 }
