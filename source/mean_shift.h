@@ -13,8 +13,8 @@
  *                 double h)
  */
 
-#ifndef __matrix_h__
-#define __matrix_h__
+#ifndef __mean_shift_h__
+#define __mean_shift_h__
 
 
 #include "matrix.h"
@@ -51,7 +51,7 @@ matrix_t *mean_shift(matrix_t *points, double h, double e);
  *  -i : The index of point to be shifted in shifted matrix and also for the
  *          returned mean shift value in m matrix.
  *  -original : A matrix containing the original positions of the points.
- *  -h : Scalar to be used by gaussian kernel. 
+ *  -h : Scalar to be used by gaussian kernel.
  */
 void shift_point(matrix_t *shifted, matrix_t *m, int i, matrix_t *original,
                  double h);

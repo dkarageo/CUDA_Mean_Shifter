@@ -17,9 +17,6 @@
 #include "mean_shift.h"
 
 
-double get_el_time(struct timeval start, struct timeval stop);
-
-
 matrix_t *mean_shift(matrix_t *points, double h, double e)
 {
     // Initial assumption for the shifted points is the initial points unshifted.
