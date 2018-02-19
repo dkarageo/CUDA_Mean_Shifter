@@ -10,7 +10,7 @@ during the course *Parallel And Distributed Systems*,\
 
 Provided in this repository, are two variants of *Mean Shift* implemented on *CUDA*. Also there is a CPU implementation of *Mean Shift*, helpful for comparing GPU version against a CPU one.
 
-The main goal of the project is to provide an efficient implementation of *Mean Shift* on *CUDA*. The secondary goal though, is to measure the benefits achieved by utilizing *Shared Memory* feature. With this in mind, the provided implementations can be used as standalone ones for use in projects which need an actual *Mean Shift* implementation, but also used with the provided demo and possibly the provided datasets for benchmarking.
+The main goal of the project is to provide an efficient implementation of *Mean Shift* on *CUDA*. The secondary goal though, is to measure the benefits achieved by utilizing *Shared Memory* feature. With these in mind, the provided implementations can be used as standalone ones for use in projects which need an actual *Mean Shift* implementation, but also used with the provided demo and possibly the provided datasets for benchmarking.
 
 ### **How to compile:**
 ```
