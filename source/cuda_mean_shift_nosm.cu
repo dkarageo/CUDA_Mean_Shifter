@@ -21,7 +21,7 @@ extern "C" {
 #include "cuda_algebra.h"
 };
 
-#define BLOCK_SIZE 64
+#define BLOCK_SIZE 64  // Size of each threads block to be created on GPU.
 
 
 __global__ void shift_point_nosm_kernel(
@@ -157,6 +157,9 @@ matrix_t *cuda_mean_shift_nosm(matrix_t *points, double h, double e, int verbose
     return shifted;
 }
 
+/**
+ * Kernel utilized by cuda_mean_shift_nosm.
+ */
 __global__ void shift_point_nosm_kernel(
                             int rows,
                             int cols,

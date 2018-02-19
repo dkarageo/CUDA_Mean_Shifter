@@ -166,24 +166,140 @@ char *matrix_serialize(matrix_t *matrix, size_t *bytec);
  */
 matrix_t *matrix_deserialize(char *bytes, size_t bytec);
 
+/**
+ * Returns a reference to the current matrix, as a pointer to pointer
+ * representation.
+ *
+ * Returned reference is guaranteed to be in row-major order.
+ *
+ * No new matrix is allocated. The returned reference is guaranteed to be
+ * just a handler to the given matrix. This also does NOT imply that returned
+ * handler is the way each matrix is implemented. The only thing guaranteed is
+ * that returned handler and all allocated memory for it, will be deallocated
+ * upon the destruction of the matrix object bound with.
+ *
+ * Parameters:
+ *  -matrix : A matrix object whose 2D array representation is requested.
+ *
+ * Returns:
+ *  -A reference to a 2D array looking handler for given matrix.
+ */
 double **matrix_to_2d_array(matrix_t *matrix);
 
+/**
+ * Copies the given matrix into a newly allocated one.
+ *
+ * Parameters:
+ *  -matrix : Matrix to copy.
+ *
+ * Returns:
+ *  A reference to a new matrix object containing the contents of the given one.
+ */
 matrix_t *matrix_create_copy(matrix_t *matrix);
 
+/**
+ * Fills all the cells of a given matrix with the given value.
+ *
+ * Parameters:
+ *  -matrix : The matrix to be filled.
+ *  -value : The value to be placed on each cell of the given matrix.
+ *
+ * Returns:
+ *  -A reference to the given matrix.
+ */
 matrix_t *matrix_fill(matrix_t *matrix, double value);
 
+/**
+ * Copies a row from one matrix to another.
+ *
+ * Parameters:
+ *  -matrix : A matrix into which the row will be copied.
+ *  -row : The index of row where new row will be copied.
+ *  -new_matrix : The source of the row to be copied into matrix.
+ *  -new_row : The index of row in new_matrix to be copied to the given index
+ *          in matrix.
+ *
+ * Returns:
+ *  The value of matrix.
+ */
 matrix_t *matrix_set_row(matrix_t *matrix, int32_t row,
                          matrix_t *new_matrix, int32_t new_row);
 
+/**
+ * Multiplies a row by a number.
+ *
+ * Parameters:
+ *  -matrix : The matrix containing the row to be the multiplicand.
+ *  -row : Index of multiplicand row in matrix.
+ *  -num : The multiplier.
+ *  -out : A matrix into which the result will be written. If it is NULL, a new
+ *          row-matrix will be allocated for the result. If (out_row == matrix),
+ *          the result is written in the original matrix.
+ *  -out_row : (Valid only if out != NULL) The index of row in out matrix,
+ *          where the result of multiplication will be written.
+ *
+ * Returns:
+ *  A reference to the matrix containing the result.
+ */
 matrix_t *matrix_row_num_mul(matrix_t *matrix, int32_t row, double num,
                              matrix_t *out, int32_t out_row);
 
+/**
+ * Divides a row by a number.
+ *
+ * Parameters:
+ *  -matrix : The matrix containing the row to be divided.
+ *  -row : Index of row in matrix to be divided.
+ *  -num : The divisor.
+ *  -out : A matrix into which the result will be written. If it is NULL, a new
+ *          row-matrix will be allocated for the result. If (out_row == matrix),
+ *          the result is written in the original matrix.
+ *  -out_row : (Valid only if out != NULL) The index of row in out matrix,
+ *          where the result of division will be written.
+ *
+ * Returns:
+ *  A reference to the matrix containing the result.
+ */
 matrix_t *matrix_row_num_div(matrix_t *matrix, int32_t row, double num,
                              matrix_t *out, int32_t out_row);
 
+/**
+ * Adds two rows.
+ *
+ * Parameters:
+ *  -m1 : Matrix containing the first row.
+ *  -r1 : Index of first row in m1.
+ *  -m2 : Matrix containing the second row.
+ *  -r2 : index of second row in m2.
+ *  -out : A matrix into which the result will be written. If it is NULL, a new
+ *          row-matrix will be allocated for the result. If (out_row == matrix),
+ *          the result is written in the original matrix.
+ *  -out_row : (Valid only if out != NULL) The index of row in out matrix,
+ *          where the result of addition will be written.
+ *
+ * Returns:
+ *  A reference to the matrix containing the result.
+ */
 matrix_t *matrix_row_add(matrix_t *m1, int32_t r1, matrix_t *m2, int32_t r2,
                          matrix_t *out, int32_t out_row);
 
+/**
+ * Subtracts one row from another, (i.e. row1 - row2).
+ *
+ * Parameters:
+ *  -m1 : Matrix containing the subtrahend row.
+ *  -r1 : Index of subtrahend row in m1.
+ *  -m2 : Matrix containing the subtracter row.
+ *  -r2 : index of subtracter row in m2.
+ *  -out : A matrix into which the result will be written. If it is NULL, a new
+ *          row-matrix will be allocated for the result. If (out_row == matrix),
+ *          the result is written in the original matrix.
+ *  -out_row : (Valid only if out != NULL) The index of row in out matrix,
+ *          where the result of subtraction will be written.
+ *
+ * Returns:
+ *  A reference to the matrix containing the result.
+ */
 matrix_t *matrix_row_sub(matrix_t *m1, int32_t r1, matrix_t *m2, int32_t r2,
                          matrix_t *out, int32_t out_row);
 

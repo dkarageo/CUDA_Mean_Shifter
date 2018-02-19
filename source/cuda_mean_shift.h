@@ -20,7 +20,7 @@
 
 
 /**
- * Executes mean shifting on provided points by utilizing CUDA enabled GPU.
+ * Executes mean shifting on provided points by utilizing CUDA enabled GPUs.
  *
  * Shared Memory feature of CUDA enabled GPUs is utilized.
  *

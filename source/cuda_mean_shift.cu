@@ -22,7 +22,13 @@ extern "C" {
 #include "cuda_algebra.h"
 };
 
-#define BLOCK_SIZE 128
+#define BLOCK_SIZE 128  // Size of each threads block to be created on GPU.
+
+/**
+ * Maximum number of concurrently loaded columns of dataset matrix into
+ * shared memory. Depending on hardware, increasing this value may lead to
+ * shorter execution times.
+ */
 #define SHARED_COLS 5
 
 
@@ -42,7 +48,7 @@ matrix_t *cuda_mean_shift(matrix_t *points, double h, double e, int verbose)
 {
     int rows = matrix_get_rows(points);
     int cols = matrix_get_cols(points);
-    int ldp = rows;  // Leading dimension of points matrix.
+    int ldp = rows;  // Leading dimension of points matrix (no padding for now).
     size_t size = sizeof(double) * ldp * cols;  // Final padded size of matrix.
 
     // Matrices on host.
@@ -94,7 +100,7 @@ matrix_t *cuda_mean_shift(matrix_t *points, double h, double e, int verbose)
     // Calculate dims of each thread block. It's size cannot exceed BLOCK_SIZE.
     // On matrices with less than 2000 rows, try to create more than
     // 2000 threads by increasing width of block.
-    int multiplier = 1;  // Least needed block width to exceed 10000 threads.
+    int multiplier = 1;  // Minimum needed block width to exceed 2000 threads.
     if (rows < 2000) multiplier = 2000 / rows;
 
     int block_width = nearest_two_pow(multiplier, 0);  // Width should be two's pow.
@@ -161,11 +167,49 @@ matrix_t *cuda_mean_shift(matrix_t *points, double h, double e, int verbose)
     cudaFree(&d_shifted);
     cudaFree(&d_mean_shift);
     cudaFree(&d_work1);
-    // cudaFree(&d_work2);
 
     return shifted;
 }
 
+/**
+ * Kernel function that shifts a point inside the given matrix and calculates
+ * its mean shift vector, utilizing a gaussian kernel.
+ *
+ * This kernel can be called inside thread blocks of arbitrary size. Though the
+ * maximum number of threads limited by compute capability applies. Also, while
+ * not required, the expected number of threads in each block is expected to
+ * be a multiple of warp size.
+ *
+ * Calling this kernel by many block of threads is possible, as long as the
+ * width of the grid remains 1, i.e. the grid should be a single column grid.
+ *
+ * Parameters:
+ *  -rows : The number of rows contained in all the given matrices. This number
+ *          represents the total number of points contained in the dataset.
+ *  -cols : The number of columns contained in all the given matrices. This
+ *          effectively represents the R grade of euclidian space and is the
+ *          number of coordinates given for each point.
+ *  -lda : The leading size of d_shifted, d_m, d_original, d_n_work matrices
+ *          that should apply to all of them. This effectively allows for
+ *          inserting extra padding between the cols of the the matrices in
+ *          their linear representations.
+ *  -d_shifted : An (lda*cols) matrix stored on device memory in column-major
+ *          order, that contains the current instance of shifted points. After
+ *          the successful completion of kernel, this matrix will be updated
+ *          with the shifted positions of the given points.
+ *  -d_m : An (lda*cols) matrix stored on device memory in column-major order,
+ *          in which the mean shift vector will be returned.
+ *  -d_original : An (lda*cols) matrix stored on device memory in colum-major
+ *          order, that containts the original positions of the points to be
+ *          shifted.
+ *  -h : The scalar value to be used by mean shift's gaussian kernel.
+ *  -d_n_work : An (lda*cols) area stored in device memory, to be utilized as
+ *          workspace by the kernel.
+ *
+ * Returns:
+ *  -d_shifted : The shifted points after applying mean shift.
+ *  -d_m : The mean shift vector.
+ */
 __global__ void shift_point_kernel(
                             int rows,
                             int cols,
@@ -179,8 +223,10 @@ __global__ void shift_point_kernel(
     // Get block (i, cord) in d_shifted associated with current thread.
     int i = blockIdx.y * blockDim.y + threadIdx.y;
     int cord = threadIdx.x;  // Only one block is expected horizontally.
+                             // For block widths lesser than cols, each thread
+                             // will calculate more than one coordinates.
 
-    // Initialize nominator and denominator to 0.
+    // Initialize nominator and denominator of next shifted point i to 0.
     // d_n_work utilized as workspace for nominators.
     if (i < rows)
         for (int k = cord; k < cols; k += blockDim.x)
@@ -188,8 +234,8 @@ __global__ void shift_point_kernel(
     double denom = 0.0;
 
     // Divide the d_original matrix, into blocks that can fit in shared memory.
-    int chunks_y = rows / BLOCK_SIZE;
-    int chunks_x = cols / SHARED_COLS;
+    int chunks_y = rows / BLOCK_SIZE;   // Number of vertical chunks.
+    int chunks_x = cols / SHARED_COLS;  // Number of horizontal chunks.
     if (rows % BLOCK_SIZE > 0) chunks_y++;
     if (cols % SHARED_COLS > 0) chunks_x++;
 
@@ -201,14 +247,14 @@ __global__ void shift_point_kernel(
     // Allocate accumulators for intermediate values of distance and kernels,
     // since calculation will be done in many column-based iterations.
     // BLOCK_SIZE is the maximum possible size that may be utilized.
-    // **Actually, every thread needs BLOCK_SIZE / blockDim.x shared memory.
+    // **Actually, every thread needs BLOCK_SIZE / blockDim.x accumulator memory.
     // Though, dynamic allocation would cause increased latency, and for now
     // total memory is enough for BLOCK_SIZE allocation by each thread.**
     double sq_dist_acc[BLOCK_SIZE];
     double kernel_tmp[BLOCK_SIZE];
 
     // Form nominator and denominator, by verticaly iterating over the chunks
-    // of d_original.
+    // of d_original that fit in shared memory.
     for (int stride_y = 0; stride_y < chunks_y; stride_y++) {
 
         denom_red[blockDim.x*threadIdx.y + cord] = 0.0;
@@ -279,7 +325,7 @@ __global__ void shift_point_kernel(
             __syncthreads();
         }
 
-    // ============ Calculate Kernels and Local Denominator Sum =============
+    // ============ Calculate Kernels and Denominator Reduction =============
 
         if (i < rows) {
             for (int j = threadIdx.x; j < j_max; j += blockDim.x) {
@@ -296,7 +342,7 @@ __global__ void shift_point_kernel(
             }
         }
 
-        // Make sure all values are ready for reduction.
+        // Make sure all partial denominators are ready for reduction.
         __syncthreads();
 
         // Denominator partial sums reduction.
@@ -321,7 +367,6 @@ __global__ void shift_point_kernel(
         }
 
     // ======== Calculate Local Nominator Sum and Final Reduction =========
-    // ============= for both Nominator and Denominator. ==================
 
         // Repeat the process done for calulating the distances by utilizing
         // shared memory, for calculating nominator and denominator.
