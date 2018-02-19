@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
     char *data_fn = argv[1];
     matrix_t *data = matrix_load_in_chunks(data_fn, 1, 0);
 
-    // Parse scaler argument.
+    // Parse scalar argument.
     double scaler = atof(argv[2]);
 
     // Structs for calculating elapsed time.
@@ -112,7 +112,6 @@ int main(int argc, char *argv[])
         printf("CUDA (No SM) Test: %s\n", pass ? "SUCCESS" : "FAIL");
     }
 #endif
-
 
 // Compute mean shift on GPU by utilizing shared memory..
     printf("%s\n", delim);
